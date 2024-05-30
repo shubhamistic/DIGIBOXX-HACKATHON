@@ -13,14 +13,16 @@ def handle_authentication(user_id):
     # return the response
     return {
         "message": "Success: Authentication Successful!",
-        "access_token": f'Bearer {access_token}'
+        "access_token": f'Bearer {access_token}',
+        "userId": user_id
     }
 
 
 def handle_sign_in(request):
     # Get email id and password from the request
-    email_id = request.args.get('emailId')
-    password = request.args.get('password')
+    request_data = request.get_json()
+    email_id = request_data.get("emailId")
+    password = request_data.get("password")
 
     if email_id and password:
         # get the actual user credentials from MySQL database

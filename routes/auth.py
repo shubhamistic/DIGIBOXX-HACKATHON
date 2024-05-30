@@ -8,13 +8,13 @@ auth_routes = Blueprint('auth', __name__)
 
 
 # route to get access_token in exchange for refresh_token
-@auth_routes.route('/authenticate', methods=['GET'])
+@auth_routes.route('/authenticate', methods=['POST'])
 @jwt_required(refresh=True)
 def authenticate():
     return auth_controller.handle_authentication(get_jwt_identity())
 
 
-@auth_routes.route('/sign-in', methods=['GET'])
+@auth_routes.route('/sign-in', methods=['POST'])
 def signIn():
     return auth_controller.handle_sign_in(request)
 
