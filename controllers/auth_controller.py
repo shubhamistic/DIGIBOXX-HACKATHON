@@ -1,5 +1,5 @@
-from flask import abort
-from flask_jwt_extended import create_access_token, create_refresh_token, decode_token
+from flask import jsonify
+from flask_jwt_extended import create_access_token, create_refresh_token
 import uuid
 from models import auth
 from utils import bcrypt_utils
@@ -31,10 +31,14 @@ def handle_sign_in(request):
         if db_response["success"]:
             if not db_response["data"]:
                 # abort the request
-                abort(409, "Error: User with the provided email id does not exists!")
+                return jsonify({
+                    "message": "Error: User with the provided email id does not exists!"
+                }), 409
         else:
             # abort the request
-            abort(500, "Error: Database operation failed!")
+            return jsonify({
+                "message": "Error: Database operation failed!"
+            }), 500
 
         # match user credentials
         user_id = db_response["data"][0][0]
@@ -53,10 +57,14 @@ def handle_sign_in(request):
             }
 
         # abort the request
-        abort(401, "Error: Incorrect user credentials (password)!")
+        return jsonify({
+            "message": "Error: Incorrect user credentials (password)!"
+        }), 401
 
     # abort the request
-    abort(400, "Error: Either email id or password not provided!")
+    return jsonify({
+        "message": "Error: Either email id or password not provided!"
+    }), 400
 
 
 def handle_sign_up(request):
@@ -73,10 +81,14 @@ def handle_sign_up(request):
         if db_response["success"]:
             if db_response["data"]:
                 # abort the request
-                abort(409, "Error: User with the provided email id already exists!")
+                return jsonify({
+                    "message": "Error: User with the provided email id already exists!"
+                }), 409
         else:
             # abort the request
-            abort(500, "Error: Database operation failed!")
+            return jsonify({
+                "message": "Error: Database operation failed!"
+            }), 500
 
         # create a new user:-
         # generate a random id for user
@@ -101,7 +113,11 @@ def handle_sign_up(request):
             }
 
         # abort the request
-        abort(500, "Error: Database operation failed!")
+        return jsonify({
+            "message": "Error: Database operation failed!"
+        }), 500
 
     # abort the request
-    abort(400, "Error: Either email id or password not provided!")
+    return jsonify({
+        "message": "Error: Either email id or password not provided!"
+    }), 400
