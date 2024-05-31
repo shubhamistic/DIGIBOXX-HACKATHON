@@ -1,4 +1,18 @@
-# DIGIBOXX-HACKATHON
+<a name="readme-top"></a>
+
+<div align="center">
+  <h3 align="center">DIGIBOXX-HACKATHON</h3>
+  Backend for Face Recognition System designed for the Digiboxx.com Hackathon
+  <p align="center">
+    <a href="https://github.com/shubhamistic/DIGIBOXX-HACKATHON"><strong>Explore the docs »</strong></a>
+    <br />
+    ·
+    <a href="https://github.com/shubhamistic/DIGIBOXX-HACKATHON/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/shubhamistic/DIGIBOXX-HACKATHON/issues">Request Feature</a>
+    ·
+  </p>
+</div>
 
 ## SETUP (Ubuntu)
 
@@ -48,6 +62,10 @@
   ```bash
   source ~/.bash_profile
   ```
+  
+- **DATABASE CONFIGURATION**
+  - Run these [*commands*](/models/) in your mysql terminal
+
 
 - Install virtualenv in global environment:
   ```bash
