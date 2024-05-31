@@ -9,6 +9,7 @@ itsdangerous==2.2.0
 Jinja2==3.1.4
 MarkupSafe==2.1.5
 mysql-connector-python==8.4.0
+pillow==10.3.0
 PyJWT==2.8.0
 Werkzeug==3.0.3
 zipp==3.19.0

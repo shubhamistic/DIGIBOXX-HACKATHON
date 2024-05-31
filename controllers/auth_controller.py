@@ -32,8 +32,8 @@ def handle_sign_in(request):
             if not db_response["data"]:
                 # abort the request
                 return jsonify({
-                    "message": "Error: User with the provided email id does not exists!"
-                }), 409
+                    "message": "Error: User not found!"
+                }), 404
         else:
             # abort the request
             return jsonify({
@@ -63,7 +63,7 @@ def handle_sign_in(request):
 
     # abort the request
     return jsonify({
-        "message": "Error: Either email id or password not provided!"
+        "message": "Error: Either email ID or password not provided!"
     }), 400
 
 
@@ -82,7 +82,7 @@ def handle_sign_up(request):
             if db_response["data"]:
                 # abort the request
                 return jsonify({
-                    "message": "Error: User with the provided email id already exists!"
+                    "message": "Error: User with this email ID already exists!"
                 }), 409
         else:
             # abort the request
@@ -92,7 +92,7 @@ def handle_sign_up(request):
 
         # create a new user:-
         # generate a random id for user
-        user_id = str(uuid.uuid4())
+        user_id = str(uuid.uuid4()).replace('-', '_')
 
         # hash the password using bcrypt hashing algorithm
         hashed_password = bcrypt_utils.hash_password(password)
@@ -119,5 +119,5 @@ def handle_sign_up(request):
 
     # abort the request
     return jsonify({
-        "message": "Error: Either email id or password not provided!"
+        "message": "Error: Either email ID or password not provided!"
     }), 400
