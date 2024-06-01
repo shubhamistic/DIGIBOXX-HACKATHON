@@ -120,3 +120,37 @@ def get_file_record(user_id, file_id):
             "success": False,
             "error": error
         }
+
+
+def get_all_records_datewise_sorted(user_id):
+    try:
+        # initialize cursor
+        cursor = db_connection.cursor()
+
+        # SQL query to get the records sorted datewise from latest to oldest
+        select_query = f"""
+            SELECT * FROM user_data_{user_id}
+            ORDER BY upload_date DESC;
+        """
+
+        # Execute the get records query
+        cursor.execute(select_query)
+
+        # get the data
+        rows = cursor.fetchall()
+
+        # save the changes
+        db_connection.commit()
+
+        # return the response
+        return {
+            "success": True,
+            "data": rows
+        }
+
+    except Exception as error:
+        # return the response
+        return {
+            "success": False,
+            "error": error
+        }

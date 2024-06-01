@@ -7,6 +7,10 @@ from datetime import timedelta
 from routes.index import index_routes
 from routes.auth import auth_routes
 from routes.data import data_routes
+# sockets
+from sockets import socketio
+import sockets.data
+
 
 app = Flask(__name__)
 
@@ -18,6 +22,7 @@ app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)
 # define extensions
 CORS(app, supports_credentials=True)  # cors
 JWTManager(app)  # jwt
+socketio.init_app(app, cors_allowed_origins="*", async_mode='gevent')  # socket
 
 # define the routes
 app.register_blueprint(index_routes, url_prefix='/')
@@ -26,3 +31,4 @@ app.register_blueprint(data_routes, url_prefix='/data')
 
 if __name__ == '__main__':
     app.run(debug=True)
+    socketio.run(app)
