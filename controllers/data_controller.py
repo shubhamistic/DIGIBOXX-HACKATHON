@@ -1,5 +1,6 @@
 from flask import jsonify
 from PIL import Image
+import base64
 import uuid
 import os
 from models import data, cluster
@@ -144,4 +145,68 @@ def handle_delete_file(request, user_id):
 
 # return the requested file to the user
 def handle_get_file(request, user_id):
-    pass
+    # Get file_id from the request
+    request_data = request.get_json()
+    file_id = request_data.get("fileId")
+
+    if file_id:
+        # get the file_id information from MySQL database
+        db_response = data.get_file_record(user_id, file_id)
+
+        if db_response["success"]:
+            if not db_response["data"]:
+                # abort the request
+                return jsonify({
+                    "message": "Error: File not found!"
+                }), 404
+        else:
+            # abort the request
+            return jsonify({
+                "message": "Error: Database operation failed!"
+            }), 500
+
+        # get the file type from the db response
+        file_type = db_response["data"][0][0]
+
+        if file_type == 'image':
+            # Construct the file path
+            file_path = os.path.join(f"data/{user_id}", f"{file_id}.png")
+
+            if not os.path.exists(file_path):
+                # abort the request
+                return jsonify({
+                    "message": "Error: File not found!"
+                }), 404
+
+            try:
+                # Read the image file in binary mode
+                with open(file_path, 'rb') as image_file:
+                    image_data = image_file.read()
+
+                # Encode the image in base64
+                image_base64 = base64.b64encode(image_data).decode('utf-8')
+
+                # Return the image in base64 format
+                return {
+                    "message": "Success: File successfully retrieved!",
+                    "file": image_base64,
+                    "fileId": file_id,
+                    "fileType": file_type
+                }
+            except Exception as error:
+                # abort the request
+                return jsonify({
+                    "message": "Error: Internal server error!",
+                    "error": error
+                }), 500
+
+        if file_type == 'video':
+            # abort the request
+            return jsonify({
+                "message": "This functionality is not available yet!"
+            }), 501
+
+    # abort the request
+    return jsonify({
+        "message": "Error: file ID not provided!"
+    }), 400

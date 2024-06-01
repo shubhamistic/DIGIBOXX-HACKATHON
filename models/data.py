@@ -86,3 +86,37 @@ def delete_file_record(user_id, file_id):
             "success": False,
             "error": error
         }
+
+
+def get_file_record(user_id, file_id):
+    try:
+        # initialize cursor
+        cursor = db_connection.cursor()
+
+        # SQL query to get the data with the help of file_id key
+        select_query = f"""
+            SELECT file_type FROM user_data_{user_id}
+            WHERE file_id = %s;
+        """
+
+        # Execute the get record query
+        cursor.execute(select_query, (file_id,))
+
+        # get the data
+        rows = cursor.fetchall()
+
+        # save the changes
+        db_connection.commit()
+
+        # return the response
+        return {
+            "success": True,
+            "data": rows
+        }
+
+    except Exception as error:
+        # return the response
+        return {
+            "success": False,
+            "error": error
+        }
