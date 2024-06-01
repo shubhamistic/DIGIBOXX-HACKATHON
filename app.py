@@ -4,6 +4,7 @@ from flask_jwt_extended import JWTManager
 from os import environ
 from datetime import timedelta
 # routes
+from routes.index import index_routes
 from routes.auth import auth_routes
 from routes.data import data_routes
 
@@ -19,6 +20,7 @@ CORS(app, supports_credentials=True)  # cors
 JWTManager(app)  # jwt
 
 # define the routes
+app.register_blueprint(index_routes, url_prefix='/')
 app.register_blueprint(auth_routes, url_prefix='/auth')
 app.register_blueprint(data_routes, url_prefix='/data')
 

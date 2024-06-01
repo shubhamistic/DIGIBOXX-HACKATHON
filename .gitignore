@@ -5,11 +5,10 @@ lib
 pyvenv.cfg
 __pycache__/
 
+static
+
 configs/*
 !configs/README.md
 
 data/*
 !data/README.md
-
-static
-templates
