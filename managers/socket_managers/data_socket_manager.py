@@ -62,5 +62,17 @@ class DataSocketManager:
             user_id = self.socket_id_room_information[socket_id]
             if user_id in self.socket_room_information:
                 room = copy.deepcopy(self.socket_room_information[user_id])
+
+                # emit the disconnect user event
+                socketio.emit(
+                    'disconnect_user',
+                    {
+                        "message": "All sockets in current user disconnected!"
+                    },
+                    namespace="/data",
+                    room=room
+                )
+
+                # break the socket connections
                 for each_socket_id in room:
                     socketio.server.disconnect(each_socket_id, namespace='/data')
