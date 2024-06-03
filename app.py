@@ -20,9 +20,6 @@ app.config['SECRET_KEY'] = environ.get('SECRET_KEY')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=7)
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)
 
-# Set the maximum request size to 16MB
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-
 # define extensions
 CORS(app, supports_credentials=True)  # cors
 JWTManager(app)  # jwt
