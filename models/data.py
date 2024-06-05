@@ -1,10 +1,11 @@
-from models import db_connection
+from . import get_db
 
 
 def create_user_data_table(user_id):
     try:
         # initialize cursor
-        cursor = db_connection.cursor()
+        db = get_db()
+        cursor = db.connection.cursor()
 
         # query to create a new table if not exists in MySQL database
         create_table_query = f"""
@@ -19,7 +20,7 @@ def create_user_data_table(user_id):
         cursor.execute(create_table_query)
 
         # save the changes
-        db_connection.commit()
+        db.connection.commit()
 
         # return the response
         return {"success": True}
@@ -35,7 +36,8 @@ def create_user_data_table(user_id):
 def insert_file_record(user_id, file_id, file_type):
     try:
         # initialize cursor
-        cursor = db_connection.cursor()
+        db = get_db()
+        cursor = db.connection.cursor()
 
         # SQL query to insert data with current date
         insert_query = f"""
@@ -47,7 +49,7 @@ def insert_file_record(user_id, file_id, file_type):
         cursor.execute(insert_query, (file_id, file_type))
 
         # save the changes
-        db_connection.commit()
+        db.connection.commit()
 
         # return the response
         return {"success": True}
@@ -63,7 +65,8 @@ def insert_file_record(user_id, file_id, file_type):
 def delete_file_record(user_id, file_id):
     try:
         # initialize cursor
-        cursor = db_connection.cursor()
+        db = get_db()
+        cursor = db.connection.cursor()
 
         # SQL query to delete data with the help of file_id key
         delete_query = f"""
@@ -75,7 +78,7 @@ def delete_file_record(user_id, file_id):
         cursor.execute(delete_query, (file_id,))
 
         # save the changes
-        db_connection.commit()
+        db.connection.commit()
 
         # return the response
         return {"success": True}
@@ -91,7 +94,8 @@ def delete_file_record(user_id, file_id):
 def get_file_record(user_id, file_id):
     try:
         # initialize cursor
-        cursor = db_connection.cursor()
+        db = get_db()
+        cursor = db.connection.cursor()
 
         # SQL query to get the data with the help of file_id key
         select_query = f"""
@@ -104,9 +108,6 @@ def get_file_record(user_id, file_id):
 
         # get the data
         rows = cursor.fetchall()
-
-        # save the changes
-        db_connection.commit()
 
         # return the response
         return {
@@ -125,7 +126,8 @@ def get_file_record(user_id, file_id):
 def get_all_records_datewise_sorted(user_id):
     try:
         # initialize cursor
-        cursor = db_connection.cursor()
+        db = get_db()
+        cursor = db.connection.cursor()
 
         # SQL query to get the records sorted datewise from latest to oldest
         select_query = f"""
@@ -138,9 +140,6 @@ def get_all_records_datewise_sorted(user_id):
 
         # get the data
         rows = cursor.fetchall()
-
-        # save the changes
-        db_connection.commit()
 
         # return the response
         return {

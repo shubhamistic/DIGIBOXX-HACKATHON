@@ -56,6 +56,9 @@
 - Append these lines inside bash profile (SAVE & EXIT):
   ```
   export SECRET_KEY="<your-secret-key(any random string)>"
+  export DB_USER="<your mysql username>"
+  export DB_PASS="<your mysql password>"
+
   ```
   
 - Execute commands from a bash_profile in current shell environment:

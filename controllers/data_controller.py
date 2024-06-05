@@ -2,7 +2,7 @@ from flask import jsonify, send_file
 from PIL import Image
 import uuid
 import os
-from models import data, cluster
+from models import data, cluster_queue
 from managers.socket_managers.data_socket_manager import DataSocketManager
 
 
@@ -54,7 +54,7 @@ def handle_upload_file(request, user_id):
                     }), 500
 
                 # queue the image for clustering as well
-                db_response = cluster.insert_cluster_queue_record(
+                db_response = cluster_queue.insert_record(
                     user_id=user_id,
                     file_id=file_id,
                     file_type=file_type
@@ -129,7 +129,7 @@ def handle_delete_file(request, user_id):
             }), 500
 
         # dequeue the file from clustering queue as well
-        db_response = cluster.delete_cluster_queue_record(file_id=file_id)
+        db_response = cluster_queue.delete_record(file_id=file_id)
 
         if not db_response["success"]:
             # abort the request
