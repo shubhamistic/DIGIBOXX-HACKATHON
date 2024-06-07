@@ -28,22 +28,46 @@ def parse_db_data_to_json(db_data):
     return json_data
 
 
-def parse_db_cluster_to_json(db_cluster):
+def parse_db_cluster_id_to_json(db_cluster):
     json_data = {}
     for rows in db_cluster:
         cluster_id = rows[1]
         file_id = rows[2]
         x1, y1, x2, y2 = rows[3], rows[4], rows[5], rows[6]
+        matched_score = rows[7]
+        cluster_name = rows[8]
 
-        if cluster_id in json_data:
-            json_data[cluster_id].append({
+        if "clusterId" in json_data:
+            json_data["data"].append({
                 "file_id": file_id,
-                "coords": [x1, y1, x2, y2]
+                "coords": [x1, y1, x2, y2],
+                "matchedScore": matched_score
             })
         else:
-            json_data[cluster_id] = [{
+            json_data["clusterId"] = cluster_id
+            json_data["clusterName"] = cluster_name
+            json_data["data"] = [{
                 "file_id": file_id,
-                "coords": [x1, y1, x2, y2]
+                "coords": [x1, y1, x2, y2],
+                "matchedScore": matched_score
             }]
+
+    return json_data
+
+
+def parse_db_cluster_to_json(db_data):
+    json_data = []
+    for rows in db_data:
+        cluster_id = rows[1]
+        file_id = rows[2]
+        x1, y1, x2, y2 = rows[3], rows[4], rows[5], rows[6]
+        cluster_name = rows[8]
+
+        json_data.append({
+            "clusterId": cluster_id,
+            "clusterName": cluster_name,
+            "fileId": file_id,
+            "coords": [x1, y1, x2, y2]
+        })
 
     return json_data

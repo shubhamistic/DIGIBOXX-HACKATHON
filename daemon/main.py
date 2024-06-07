@@ -2,10 +2,15 @@ import os
 import cv2
 import time
 import uuid
+import socketio
 from detect_face import detect_faces
 from recognize_face import compare_face_with_multiple_images
 from models import cluster, cluster_queue
 from utils import data_utils
+
+
+sio = socketio.Client()
+sio.connect('http://127.0.0.1:5000', namespaces=['/daemon'])
 
 
 def cluster_image(image, cluster_dict):
@@ -121,6 +126,14 @@ if __name__ == "__main__":
                                                 matched_score=clustered_info["matched_score"],
                                                 is_identity=True
                                             )
+                                    # write the change to daemon shared file
+                                    # so that flask can emit the changes to user through socket
+                                    sio.emit(
+                                        'daemon_refresh',
+                                        {'userId': user_id},
+                                        namespace='/daemon'
+                                    )
+
                                 # delete the record from the cluster queue
                                 cluster_queue.delete_record(file_id)
                     else:

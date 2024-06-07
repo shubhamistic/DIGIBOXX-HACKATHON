@@ -1,9 +1,10 @@
-from . import connection
+from . import connect_to_database
 
 
 def get_record():
     try:
         # initialize cursor
+        connection = connect_to_database()
         cursor = connection.cursor()
 
         # SQL query to get the data
@@ -36,6 +37,7 @@ def get_record():
 
 def delete_record(file_id):
     try:
+        connection = connect_to_database()
         # initialize cursor
         cursor = connection.cursor()
 

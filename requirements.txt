@@ -39,6 +39,7 @@ mtcnn==0.1.1
 mysql-connector-python==8.4.0
 mysqlclient==2.2.4
 namex==0.0.8
+netifaces==0.10.6
 numpy==1.26.4
 opencv-python==4.9.0.80
 opt-einsum==3.3.0
@@ -62,6 +63,7 @@ tensorflow-io-gcs-filesystem==0.37.0
 termcolor==2.4.0
 typing_extensions==4.12.1
 urllib3==1.26.6
+websocket-client==1.8.0
 Werkzeug==3.0.3
 wrapt==1.16.0
 wsproto==1.2.0

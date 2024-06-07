@@ -3,10 +3,10 @@ from PIL import Image
 import uuid
 import os
 from models import data, cluster_queue
-from managers.socket_managers.data_socket_manager import DataSocketManager
+from managers.socket_managers.socket_manager import SocketManager
 
 
-data_socket_manager = DataSocketManager()
+socket_manager = SocketManager()
 
 
 # upload a file into the user directory and queue it for clustering
@@ -67,7 +67,7 @@ def handle_upload_file(request, user_id):
                     }), 500
 
                 # emit the changes to all socket connections as well
-                data_socket_manager.emit_data_refreshed_event(user_id=user_id)
+                socket_manager.emit_data_refreshed_event(user_id=user_id)
 
                 # return the response
                 return {
@@ -138,7 +138,7 @@ def handle_delete_file(request, user_id):
             }), 500
 
         # emit the changes to all socket connections as well
-        data_socket_manager.emit_data_refreshed_event(user_id=user_id)
+        socket_manager.emit_data_refreshed_event(user_id=user_id)
 
         # return the response
         return {
