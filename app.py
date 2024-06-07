@@ -5,7 +5,6 @@ from flask_mysqldb import MySQL
 from os import environ
 from datetime import timedelta
 # routes
-from routes.index import index_routes
 from routes.auth import auth_routes
 from routes.data import data_routes
 from routes.null import null_routes
@@ -33,7 +32,6 @@ socketio.init_app(app, cors_allowed_origins="*", async_mode='gevent')  # socket
 mysql = MySQL(app)  # MySQL
 
 # define the routes
-app.register_blueprint(index_routes, url_prefix='/')
 app.register_blueprint(auth_routes, url_prefix='/auth')
 app.register_blueprint(data_routes, url_prefix='/data')
 app.register_blueprint(null_routes, url_prefix='/null')

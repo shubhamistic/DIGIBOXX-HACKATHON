@@ -6,6 +6,7 @@ pyvenv.cfg
 __pycache__/
 
 static
+templates
 
 configs/*
 !configs/README.md

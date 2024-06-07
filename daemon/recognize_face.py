@@ -2,11 +2,6 @@ import cv2
 import face_recognition
 
 
-def is_truth_in_majority(list):
-    # function to check if value True occurred majority of the times or not
-    pass
-
-
 def compare_face_with_multiple_images(input_image, person_images, threshold=0.6):
     # Load the input image and compute its face encoding
     input_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2RGB)
