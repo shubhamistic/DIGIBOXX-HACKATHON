@@ -45,7 +45,7 @@ class DataNamespace(Namespace):
 
         socket_manager.disconnect_all_sockets(socket_id=request.sid)
 
-    def on_cluster(self, data):
+    def on_cluster(self):
         global socket_manager
 
         # emit the data

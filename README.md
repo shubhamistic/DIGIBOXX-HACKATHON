@@ -16,10 +16,19 @@
 
 ## SETUP (Ubuntu)
 
+```bash
+sudo apt update
+```
+
+- Install required packages for mysqlclient:
+  ```bash
+  sudo apt install pkg-config
+  sudo apt install libmysqlclient-dev
+  sudo apt-get install libpython3.9-dev default-libmysqlclient-dev build-essential
+  ```
+
 - Install NGINX:
   ```bash
-  sudo apt update
-  
   sudo apt install nginx
   ```
 
@@ -58,7 +67,6 @@
   export SECRET_KEY="<your-secret-key(any random string)>"
   export DB_USER="<your mysql username>"
   export DB_PASS="<your mysql password>"
-
   ```
   
 - Execute commands from a bash_profile in current shell environment:
@@ -66,23 +74,37 @@
   source ~/.bash_profile
   ```
   
+- Install MySQL:
+  ```bash
+  sudo apt install mysql-server
+  ```
+  
+- Change MySQL password:
+  ```bash
+  sudo mysql
+  ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
+  ```
+
 - **DATABASE CONFIGURATION**
   - Run these [*commands*](/models/) in your mysql terminal
 
-
-- Install virtualenv in global environment:
+- Install virtualenv:
   ```bash
-  pip install virtualenv
+  sudo apt install virtualenv
   ```
-  
+
+- Install the repository:
+  ```bash
+  git clone https://github.com/shubhamistic/DIGIBOXX-HACKATHON.git
+  ```
+
 - Activate virtualenv and install the modules (use byobu):
   ```bash
-  virtualenv <project-directory>
-  cd <project-directory>
+  virtualenv DIGIBOXX-HACKATHON
+  cd DIGIBOXX-HACKATHON
   source ~/.bash_profile
   source bin/activate
-  pip install gunicorn gevent-websocket 
-  pip install -r requirements.txt
+  pip install --no-cache-dir -r requirements.txt
   ```
 
 - Run the server using:

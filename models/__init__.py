@@ -1,3 +1,9 @@
+from flask_mysqldb import MySQL
+
+
+mysql = MySQL()
+
+
 db = None
 
 
@@ -7,6 +13,5 @@ def get_db():
     if db:
         return db
     else:
-        from app import mysql
         db = mysql
         return db

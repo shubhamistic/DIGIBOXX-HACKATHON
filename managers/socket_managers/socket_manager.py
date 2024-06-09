@@ -40,7 +40,7 @@ class SocketManager:
             db_response = data.get_all_records_datewise_sorted(user_id)
             if db_response["success"]:
                 # parse the data received from the db to json format
-                refreshed_data = data_utils.parse_db_data_to_json(db_response["data"])
+                refreshed_data = data_utils.parse_user_data_to_json(db_response["data"])
 
                 if emit_to_all:
                     room = self.socket_room_information[user_id]
@@ -68,10 +68,10 @@ class SocketManager:
                 user_id = self.socket_id_room_information[socket_id]
 
         if user_id in self.socket_room_information:
-            db_response = cluster.get_cluster_info(user_id)
+            db_response = cluster.get_user_cluster_info(user_id)
             if db_response["success"]:
                 # parse the data received from the db to json format
-                refreshed_data = data_utils.parse_db_cluster_to_json(db_response["data"])
+                refreshed_data = data_utils.parse_user_distinct_cluster_to_json(db_response["data"])
 
                 if emit_to_all:
                     room = self.socket_room_information[user_id]
@@ -98,7 +98,7 @@ class SocketManager:
             )
             if db_response["success"]:
                 # parse the data received from the db to json format
-                refreshed_data = data_utils.parse_db_cluster_id_to_json(db_response["data"])
+                refreshed_data = data_utils.parse_user_cluster_data_to_json(db_response["data"])
 
                 # emit the refreshed data
                 socketio.emit(

@@ -2,11 +2,13 @@ from flask import jsonify, send_file
 from PIL import Image
 import uuid
 import os
-from models import data, cluster_queue
+from models import data
 from managers.socket_managers.socket_manager import SocketManager
+from managers.socket_managers.daemon_manager import DaemonSocketManager
 
 
 socket_manager = SocketManager()
+daemon_socket_manager = DaemonSocketManager()
 
 
 # upload a file into the user directory and queue it for clustering
@@ -54,19 +56,13 @@ def handle_upload_file(request, user_id):
                     }), 500
 
                 # queue the image for clustering as well
-                db_response = cluster_queue.insert_record(
+                daemon_socket_manager.add_task_to_cluster_queue(
                     user_id=user_id,
                     file_id=file_id,
                     file_type=file_type
                 )
 
-                if not db_response["success"]:
-                    # abort the request
-                    return jsonify({
-                        "message": "Error: Database operation failed!"
-                    }), 500
-
-                # emit the changes to all socket connections as well
+                # emit the changes to all current user socket connections as well
                 socket_manager.emit_data_refreshed_event(user_id=user_id)
 
                 # return the response
@@ -129,15 +125,12 @@ def handle_delete_file(request, user_id):
             }), 500
 
         # dequeue the file from clustering queue as well
-        db_response = cluster_queue.delete_record(file_id=file_id)
+        daemon_socket_manager.remove_task_from_cluster_queue(
+            user_id=user_id,
+            file_id=file_id
+        )
 
-        if not db_response["success"]:
-            # abort the request
-            return jsonify({
-                "message": "Error: Database operation failed!"
-            }), 500
-
-        # emit the changes to all socket connections as well
+        # emit the changes to all current user socket connections as well
         socket_manager.emit_data_refreshed_event(user_id=user_id)
 
         # return the response
