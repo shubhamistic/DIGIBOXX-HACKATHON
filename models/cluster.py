@@ -101,6 +101,38 @@ def get_user_cluster_info(user_id):
         }
 
 
+def get_cluster_file_info(user_id, file_id, cluster_id):
+    try:
+        # initialize cursor
+        db = get_db()
+        cursor = db.connection.cursor()
+
+        # SQL query to get the records
+        select_query = f"""
+            SELECT * FROM user_cluster_{user_id}
+            WHERE cluster_id=%s AND file_id=%s;
+        """
+
+        # Execute the get records query
+        cursor.execute(select_query, (cluster_id, file_id))
+
+        # get the data
+        data = cursor.fetchone()
+
+        # return the response
+        return {
+            "success": True,
+            "data": data
+        }
+
+    except Exception as error:
+        # return the response
+        return {
+            "success": False,
+            "error": error
+        }
+
+
 def insert_user_cluster_record(user_id, cluster_id, file_id, coords, matched_score, cluster_name=None, is_identity=False):
     try:
         # initialize cursor

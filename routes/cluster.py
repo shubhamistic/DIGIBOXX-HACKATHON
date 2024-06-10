@@ -23,3 +23,12 @@ def userFeedBack():
         request,
         user_id=get_jwt_identity()
     )
+
+
+@cluster_routes.route('/get', methods=['POST'])
+@jwt_required()
+def getCroppedImage():
+    return cluster_controller.handle_get_file(
+        request,
+        user_id=get_jwt_identity()
+    )
