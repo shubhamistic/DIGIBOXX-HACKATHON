@@ -26,6 +26,7 @@ class DaemonSocketManager:
             print("Daemon Authorization Key:", daemon_authorization_key)
         return cls._instance
 
+    # method to take pending tasks from MySQL cluster_queue and add that to local cluster queue
     def initialize_local_cluster_queue(self):
         if not self.is_local_cluster_queue_initialized:
             # get the initial tasks from the cluster_queue MySQL database
@@ -43,10 +44,11 @@ class DaemonSocketManager:
                         "client_socket_id": None
                     }
 
-    def add_task_to_cluster_queue(self, user_id, file_id, file_type):
-        # initialize the local cluster queue if not initialized
-        self.initialize_local_cluster_queue()
+                # set is local cluster queue initialized to true
+                self.is_local_cluster_queue_initialized = True
 
+    # method to add a task to local cluster queue
+    def add_task_to_cluster_queue(self, user_id, file_id, file_type):
         # save the task to local cluster queue
         self.local_cluster_queue[file_id] = {
             "file_id": file_id,
@@ -64,18 +66,16 @@ class DaemonSocketManager:
         # assign the clustering task to the client
         self.assign_clustering_task()
 
+    # method to remove a task from local cluster queue
     def remove_task_from_cluster_queue(self, user_id, file_id):
-        # initialize the local cluster queue if not initialized
-        self.initialize_local_cluster_queue()
-
         # remove the task from local cluster queue
         if file_id in self.local_cluster_queue:
             del self.local_cluster_queue[file_id]
 
-        # also remove the data from mysql cluster_queue
+        # also remove the data from mysql cluster_queue table
         cluster_queue.delete_record(file_id=file_id)
 
-        # remove the file from cluster table if already clustered
+        # remove the file from user's cluster (MySQL table) if already clustered
         db_response = cluster.delete_file_from_cluster(
             user_id=user_id,
             file_id=file_id
@@ -86,11 +86,13 @@ class DaemonSocketManager:
             data_socket_manager.emit_cluster_refreshed_event(user_id=user_id)
             data_socket_manager.emit_cluster_id_refreshed_event(user_id=user_id)
 
+    # method to check if a socket id is an authorized clustering client or not
     def is_socket_authorized(self, socket_id):
         if socket_id in self.daemon_client_socket_information:
             return True
         return False
 
+    # method to authorize and add client's socket I'd to the client information list
     def authorize_and_add_socket_to_room(self, socket_id, authorization_key):
         if socket_id not in self.daemon_client_socket_information:
             # check if the clustering client has the correct authorization key
@@ -108,6 +110,7 @@ class DaemonSocketManager:
         # return the authorization response
         return {"authorized": False}
 
+    # method to remove a client's socket I'd from the client information list
     def remove_socket_from_room(self, socket_id):
         if socket_id in self.daemon_client_socket_information:
             # revoke all the task assigned to this client so that another client can proceed with this task
@@ -118,7 +121,11 @@ class DaemonSocketManager:
             # remove the socket id from daemon clients
             del self.daemon_client_socket_information[socket_id]
 
+    # method to fetch the tasks from cluster queue and assign it to all the available clustering clients
     def assign_clustering_task(self):
+        # initialize the local cluster queue if not initialized
+        self.initialize_local_cluster_queue()
+
         # iterate over all the task in the cluster queue
         for task_file_id, task_info in self.local_cluster_queue.items():
             # check for the available task in cluster queue
@@ -164,6 +171,7 @@ class DaemonSocketManager:
 
                             break
 
+    # method to handle the task if a client successfully finishes the task
     def handle_task_complete(self, socket_id, task_info, clustering_result):
         if socket_id in self.daemon_client_socket_information:
             user_id = task_info["user_id"]

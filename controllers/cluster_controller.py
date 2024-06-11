@@ -30,6 +30,9 @@ def handle_cluster_name_change(request, user_id):
                 "error": db_response["error"]
             }), 500
 
+        # emit the changes to all current user socket connections as well
+        socket_manager.emit_cluster_refreshed_event(user_id=user_id)
+
         return {
             "message": "Success: cluster name changed successfully!"
         }
@@ -65,6 +68,9 @@ def handle_user_feedback(request, user_id):
                 "message": "Error: Database operation failed!",
                 "error": db_response["error"]
             }), 500
+
+        # emit the changes to all current user socket connections as well
+        socket_manager.emit_cluster_id_refreshed_event(user_id=user_id)
 
         return {
             "message": "Success: file moved to suggested cluster successfully!"

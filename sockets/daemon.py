@@ -45,6 +45,12 @@ class DaemonNamespace(Namespace):
         # remove the socket id from the room
         daemon_socket_manager.remove_socket_from_room(socket_id=request.sid)
 
+    def on_ready(self, data):
+        global daemon_socket_manager
+
+        # start assigning the tasks to the client if ready
+        daemon_socket_manager.assign_clustering_task()
+
     def on_task_completed(self, data):
         global daemon_socket_manager
 
