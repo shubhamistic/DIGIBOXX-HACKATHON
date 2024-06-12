@@ -25,7 +25,7 @@ def userFeedBack():
     )
 
 
-@cluster_routes.route('/get', methods=['POST'])
+@cluster_routes.route('/crop', methods=['POST'])
 @jwt_required()
 def getCroppedImage():
     return cluster_controller.handle_get_file(

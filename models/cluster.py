@@ -101,7 +101,7 @@ def get_user_cluster_info(user_id):
         }
 
 
-def get_cluster_file_info(user_id, file_id, cluster_id):
+def get_identity_cluster_file_info(user_id, file_id, cluster_id):
     try:
         # initialize cursor
         db = get_db()
@@ -110,7 +110,7 @@ def get_cluster_file_info(user_id, file_id, cluster_id):
         # SQL query to get the records
         select_query = f"""
             SELECT * FROM user_cluster_{user_id}
-            WHERE cluster_id=%s AND file_id=%s;
+            WHERE cluster_id=%s AND file_id=%s AND is_identity=TRUE;
         """
 
         # Execute the get records query
@@ -235,6 +235,96 @@ def delete_file_from_cluster(user_id, file_id):
 
         # execute the delete query
         cursor.execute(update_query, (file_id,))
+
+        # save the changes
+        db.connection.commit()
+
+        # return the response
+        return {"success": True}
+    except Exception as error:
+        # return the response
+        return {
+            "success": False,
+            "error": str(error)
+        }
+
+def update_matched_score(user_id, cluster_id, file_id, matched_score):
+    try:
+        # initialize cursor
+        db = get_db()
+        cursor = db.connection.cursor()
+
+        # SQL query to update the records
+        update_query = f"""
+            UPDATE user_cluster_{user_id}
+            SET matched_score = %s
+            WHERE cluster_id = %s AND file_id = %s;
+        """
+
+        # execute the insert query
+        cursor.execute(update_query, (matched_score, cluster_id, file_id))
+
+        # save the changes
+        db.connection.commit()
+
+        # return the response
+        return {"success": True}
+    except Exception as error:
+        # return the response
+        return {
+            "success": False,
+            "error": str(error)
+        }
+
+def update_identity_to_second_highest_match_score(user_id, cluster_id, file_id):
+    try:
+        # initialize cursor
+        db = get_db()
+        cursor = db.connection.cursor()
+
+        # SQL query to update the records
+        update_query = f"""
+            UPDATE user_cluster_{user_id} AS u
+            JOIN (
+                SELECT file_id
+                FROM user_cluster_{user_id}
+                WHERE cluster_id = %s AND file_id != %s
+                ORDER BY matched_score DESC
+                LIMIT 1
+            ) AS sub ON u.file_id = sub.file_id
+            SET u.is_identity = TRUE;
+        """
+
+        # execute the update query
+        cursor.execute(update_query, (cluster_id, file_id))
+
+        # save the changes
+        db.connection.commit()
+
+        # return the response
+        return {"success": True}
+    except Exception as error:
+        # return the response
+        return {
+            "success": False,
+            "error": str(error)
+        }
+
+def update_identity_to_false(user_id, cluster_id, file_id):
+    try:
+        # initialize cursor
+        db = get_db()
+        cursor = db.connection.cursor()
+
+        # SQL query to update the records
+        update_query = f"""
+            UPDATE user_cluster_{user_id}
+            SET is_identity = FALSE
+            WHERE cluster_id = %s AND file_id = %s;
+        """
+
+        # execute the update query
+        cursor.execute(update_query, (cluster_id, file_id))
 
         # save the changes
         db.connection.commit()
