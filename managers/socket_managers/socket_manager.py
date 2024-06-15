@@ -68,7 +68,7 @@ class SocketManager:
                 user_id = self.socket_id_room_information[socket_id]
 
         if user_id in self.socket_room_information:
-            db_response = cluster.get_user_cluster_info(user_id)
+            db_response = cluster.get_user_identity_cluster_info(user_id)
             if db_response["success"]:
                 # parse the data received from the db to json format
                 refreshed_data = data_utils.parse_user_distinct_cluster_to_json(db_response["data"])

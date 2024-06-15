@@ -77,6 +77,37 @@ def get_user_cluster_info(user_id):
 
         # SQL query to get the records
         select_query = f"""
+            SELECT * FROM user_cluster_{user_id};
+        """
+
+        # Execute the get records query
+        cursor.execute(select_query)
+
+        # get the data
+        data = cursor.fetchall()
+
+        # return the response
+        return {
+            "success": True,
+            "data": data
+        }
+
+    except Exception as error:
+        # return the response
+        return {
+            "success": False,
+            "error": error
+        }
+
+
+def get_user_identity_cluster_info(user_id):
+    try:
+        # initialize cursor
+        db = get_db()
+        cursor = db.connection.cursor()
+
+        # SQL query to get the records
+        select_query = f"""
             SELECT * FROM user_cluster_{user_id}
             WHERE is_identity=TRUE;
         """
