@@ -246,7 +246,8 @@ def handle_delete_file(request, user_id):
     # delete the requested file from the cluster
     db_response = cluster.delete_file_from_cluster(
         user_id=user_id,
-        file_id=file_id
+        file_id=file_id,
+        cluster_id=cluster_id
     )
 
     if not db_response["success"]:

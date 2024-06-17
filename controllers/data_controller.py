@@ -161,7 +161,8 @@ def handle_delete_file(request, user_id):
             # delete the requested file record from the cluster
             cluster.delete_file_from_cluster(
                 user_id=user_id,
-                file_id=file_id
+                file_id=file_id,
+                cluster_id=cluster_id
             )
 
             if is_identity_cluster:

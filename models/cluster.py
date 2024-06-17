@@ -377,7 +377,7 @@ def update_cluster_identity(user_id, cluster_id, file_id, identity):
         }
 
 
-def delete_file_from_cluster(user_id, file_id):
+def delete_file_from_cluster(user_id, file_id, cluster_id):
     try:
         # initialize cursor
         db = get_db()
@@ -386,11 +386,11 @@ def delete_file_from_cluster(user_id, file_id):
         # SQL query to delete the records
         update_query = f"""
             DELETE FROM user_cluster_{user_id}
-            WHERE file_id = %s;
+            WHERE file_id = %s AND cluster_id = %s;
         """
 
         # execute the delete query
-        cursor.execute(update_query, (file_id,))
+        cursor.execute(update_query, (file_id, cluster_id))
 
         # save the changes
         db.connection.commit()
