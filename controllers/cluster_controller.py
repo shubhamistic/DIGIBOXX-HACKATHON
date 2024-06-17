@@ -125,6 +125,21 @@ def handle_user_feedback(request, user_id):
                             "error": db_response["error"]
                         }), 500
 
+                # update th cluster_id
+                db_response = cluster.update_file_cluster(
+                    user_id=user_id,
+                    cluster_id=cluster_id,
+                    file_id=file_id,
+                    target_cluster_id=target_cluster_id
+                )
+
+                if not db_response["success"]:
+                    # abort the request
+                    return jsonify({
+                        "message": "Error: Database operation failed!",
+                        "error": db_response["error"]
+                    }), 500
+
             # case 3: existing target_cluster_id provided
             # (i.e.) image is wrongly clustered (user wants to change the cluster of that image)
             else:
@@ -144,20 +159,26 @@ def handle_user_feedback(request, user_id):
                             "error": db_response["error"]
                         }), 500
 
-            # update th cluster_id
-            db_response = cluster.update_file_cluster(
-                user_id=user_id,
-                cluster_id=cluster_id,
-                file_id=file_id,
-                target_cluster_id=target_cluster_id
-            )
+                # update th cluster_id
+                db_response = cluster.update_file_cluster(
+                    user_id=user_id,
+                    cluster_id=cluster_id,
+                    file_id=file_id,
+                    target_cluster_id=target_cluster_id
+                )
 
-            if not db_response["success"]:
-                # abort the request
-                return jsonify({
-                    "message": "Error: Database operation failed!",
-                    "error": db_response["error"]
-                }), 500
+                if not db_response["success"]:
+                    # abort the request
+                    return jsonify({
+                        "message": "Error: Database operation failed!",
+                        "error": db_response["error"]
+                    }), 500
+
+                # make another image in the cluster as identity
+                cluster.update_is_identity_true_in_lowest_match_score(
+                    user_id=user_id,
+                    cluster_id=cluster_id
+                )
 
         # emit the changes to all current user socket connections as well
         socket_manager.emit_cluster_refreshed_event(user_id=user_id)
