@@ -173,6 +173,8 @@ def handle_delete_file(request, user_id):
 
         # emit the changes to all current user socket connections as well
         socket_manager.emit_data_refreshed_event(user_id=user_id)
+        socket_manager.emit_cluster_refreshed_event(user_id=user_id)
+        socket_manager.emit_cluster_id_refreshed_event(user_id=user_id)
 
         # return the response
         return {
