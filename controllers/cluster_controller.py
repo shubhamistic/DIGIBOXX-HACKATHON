@@ -51,54 +51,8 @@ def handle_user_feedback(request, user_id):
     target_cluster_id = request_data.get("targetClusterId")
 
     if cluster_id and file_id:
-        # check if the file id is identity image in the cluster or not
-        db_response = cluster.get_identity_cluster_file_info(
-            user_id=user_id,
-            cluster_id=cluster_id,
-            file_id=file_id
-        )
-
-        if not db_response["success"]:
-            # abort the request
-            return jsonify({
-                "message": "Error: Database operation failed!",
-                "error": db_response["error"]
-            }), 500
-
-        # check if the image is the identity image of cluster or not
-        if db_response["data"]:
-            # remove the current image from identity image
-            db_response = cluster.update_identity_to_false(
-                user_id=user_id,
-                cluster_id=cluster_id,
-                file_id=file_id
-            )
-
-            if not db_response["success"]:
-                # abort the request
-                return jsonify({
-                    "message": "Error: Database operation failed!",
-                    "error": db_response["error"]
-                }), 500
-
-            # make the second highest matching score image as identity image
-            db_response = cluster.update_identity_to_second_highest_match_score(
-                user_id=user_id,
-                cluster_id=cluster_id,
-                file_id=file_id
-            )
-
-            if not db_response["success"]:
-                # abort the request
-                return jsonify({
-                    "message": "Error: Database operation failed!",
-                    "error": db_response["error"]
-                }), 500
-
-        if not target_cluster_id:
-            # create a new target cluster id if not provided
-            target_cluster_id = str(uuid.uuid4()).replace('-', '_')
-
+        # case 1: same cluster_id and target_cluster_id
+        # (i.e.) image is correctly clustered
         if cluster_id == target_cluster_id:
             # update the matched score of the image with 100
             db_response = cluster.update_matched_score(
@@ -114,8 +68,9 @@ def handle_user_feedback(request, user_id):
                     "message": "Error: Database operation failed!",
                     "error": db_response["error"]
                 }), 500
+
         else:
-            # update the matched score with 0
+            # set matched_score of the image to zero
             db_response = cluster.update_matched_score(
                 user_id=user_id,
                 cluster_id=cluster_id,
@@ -130,25 +85,85 @@ def handle_user_feedback(request, user_id):
                     "error": db_response["error"]
                 }), 500
 
-        # move the image to target cluster id
-        db_response = cluster.update_file_cluster(
-            user_id=user_id,
-            cluster_id=cluster_id,
-            file_id=file_id,
-            target_cluster_id=target_cluster_id
-        )
+            # check if the file id is identity image in the cluster or not
+            is_identity_cluster = False
+            db_response = cluster.get_identity_cluster_file_info(
+                user_id=user_id,
+                cluster_id=cluster_id,
+                file_id=file_id
+            )
 
-        if not db_response["success"]:
-            # abort the request
-            return jsonify({
-                "message": "Error: Database operation failed!",
-                "error": db_response["error"]
-            }), 500
+            if not db_response["success"]:
+                # abort the request
+                return jsonify({
+                    "message": "Error: Database operation failed!",
+                    "error": db_response["error"]
+                }), 500
+
+            if db_response["data"]:
+                is_identity_cluster = True
+
+            # case 2: target_cluster_id not provided
+            # (i.e.) image is wrongly clustered (user wants to create a new cluster for that image)
+            if not target_cluster_id:
+                # create a new target cluster id if not provided
+                target_cluster_id = str(uuid.uuid4()).replace('-', '_')
+
+                if not is_identity_cluster:
+                    # set the cluster as identity cluster
+                    db_response = cluster.update_cluster_identity(
+                        user_id=user_id,
+                        cluster_id=cluster_id,
+                        file_id=file_id,
+                        identity=True
+                    )
+
+                    if not db_response["success"]:
+                        # abort the request
+                        return jsonify({
+                            "message": "Error: Database operation failed!",
+                            "error": db_response["error"]
+                        }), 500
+
+            # case 3: existing target_cluster_id provided
+            # (i.e.) image is wrongly clustered (user wants to change the cluster of that image)
+            else:
+                if is_identity_cluster:
+                    # set the cluster as non-identity cluster
+                    db_response = cluster.update_cluster_identity(
+                        user_id=user_id,
+                        cluster_id=cluster_id,
+                        file_id=file_id,
+                        identity=False
+                    )
+
+                    if not db_response["success"]:
+                        # abort the request
+                        return jsonify({
+                            "message": "Error: Database operation failed!",
+                            "error": db_response["error"]
+                        }), 500
+
+            # update th cluster_id
+            db_response = cluster.update_file_cluster(
+                user_id=user_id,
+                cluster_id=cluster_id,
+                file_id=file_id,
+                target_cluster_id=target_cluster_id
+            )
+
+            if not db_response["success"]:
+                # abort the request
+                return jsonify({
+                    "message": "Error: Database operation failed!",
+                    "error": db_response["error"]
+                }), 500
 
         # emit the changes to all current user socket connections as well
         socket_manager.emit_cluster_refreshed_event(user_id=user_id)
         socket_manager.emit_cluster_id_refreshed_event(user_id=user_id)
 
+        # return the response
         return {
             "message": "Success: file moved to suggested cluster successfully!"
         }
@@ -200,3 +215,58 @@ def handle_get_file(request, user_id):
     return jsonify({
         "message": "Error: Either file Id, Cluster Id or coords not provided!"
     }), 400
+
+
+# return the requested file to the user
+def handle_delete_file(request, user_id):
+    # Get file_id from the request
+    request_data = request.get_json()
+    file_id = request_data.get("fileId")
+    cluster_id = request_data.get("clusterId")
+
+    # remove the file from user's cluster (MySQL table) if already clustered
+    # check if the file id is identity image in the cluster or not
+    is_identity_cluster = False
+    db_response = cluster.get_identity_cluster_file_info(
+        user_id=user_id,
+        cluster_id=cluster_id,
+        file_id=file_id
+    )
+
+    if not db_response["success"]:
+        # abort the request
+        return jsonify({
+            "message": "Error: Database operation failed!",
+            "error": db_response["error"]
+        }), 500
+
+    if db_response["data"]:
+        is_identity_cluster = True
+
+    # delete the requested file from the cluster
+    db_response = cluster.delete_file_from_cluster(
+        user_id=user_id,
+        file_id=file_id
+    )
+
+    if not db_response["success"]:
+        # abort the request
+        return jsonify({
+            "message": "Error: Database operation failed!"
+        }), 500
+
+    if is_identity_cluster:
+        # make another image in the cluster as identity
+        cluster.update_is_identity_true_in_lowest_match_score(
+            user_id=user_id,
+            cluster_id=cluster_id
+        )
+
+    # emit the changes to all current user socket connections as well
+    socket_manager.emit_cluster_refreshed_event(user_id=user_id)
+    socket_manager.emit_cluster_id_refreshed_event(user_id=user_id)
+
+    # return the response
+    return {
+        "message": "Success: File successfully deleted from the cluster!"
+    }

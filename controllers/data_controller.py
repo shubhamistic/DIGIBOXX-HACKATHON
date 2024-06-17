@@ -2,7 +2,7 @@ from flask import jsonify, send_file
 from PIL import Image
 import uuid
 import os
-from models import data
+from models import data, cluster
 from managers.socket_managers.socket_manager import SocketManager
 from managers.socket_managers.daemon_manager import DaemonSocketManager
 
@@ -129,6 +129,47 @@ def handle_delete_file(request, user_id):
             user_id=user_id,
             file_id=file_id
         )
+
+        # handle deletion from cluster records as well
+        db_response = cluster.get_file_cluster_info(
+            user_id=user_id,
+            file_id=file_id
+        )
+
+        if not db_response["success"]:
+            # abort the request
+            return jsonify({
+                "message": "Error: Database operation failed!"
+            }), 500
+
+        # iterate over each row and delete the record
+        # if image is identity image then make another image as identity image
+        for cluster_row in db_response["data"]:
+            cluster_id = cluster_row[1]  # cluster_id
+
+            # check if the file id is identity image in the cluster or not
+            is_identity_cluster = False
+            db_response = cluster.get_identity_cluster_file_info(
+                user_id=user_id,
+                cluster_id=cluster_id,
+                file_id=file_id
+            )
+
+            if db_response["success"] and db_response["data"]:
+                is_identity_cluster = True
+
+            # delete the requested file record from the cluster
+            cluster.delete_file_from_cluster(
+                user_id=user_id,
+                file_id=file_id
+            )
+
+            if is_identity_cluster:
+                # make another image in the cluster as identity
+                cluster.update_is_identity_true_in_lowest_match_score(
+                    user_id=user_id,
+                    cluster_id=cluster_id
+                )
 
         # emit the changes to all current user socket connections as well
         socket_manager.emit_data_refreshed_event(user_id=user_id)

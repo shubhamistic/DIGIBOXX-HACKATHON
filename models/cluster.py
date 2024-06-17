@@ -37,6 +37,36 @@ def create_user_cluster_table(user_id):
         }
 
 
+def insert_user_cluster_record(user_id, cluster_id, file_id, coords, matched_score, cluster_name=None, is_identity=False):
+    try:
+        # initialize cursor
+        db = get_db()
+        cursor = db.connection.cursor()
+
+        # query to insert the record in MySQL database
+        insert_query = f"""
+            INSERT INTO user_cluster_{user_id} (cluster_id, file_id, x1, y1, x2, y2, matched_score, cluster_name, is_identity)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        x1, y1, x2, y2 = coords
+        # Execute the insert table query
+        cursor.execute(insert_query, (cluster_id, file_id, x1, y1, x2, y2, matched_score, cluster_name, is_identity))
+
+        # save the changes
+        db.connection.commit()
+
+        # return the response
+        return {"success": True}
+
+    except Exception as error:
+        # return the response
+        return {
+            "success": False,
+            "error": error
+        }
+
+
 def get_specific_cluster_info(user_id, cluster_id):
     try:
         # initialize cursor
@@ -164,27 +194,29 @@ def get_identity_cluster_file_info(user_id, file_id, cluster_id):
         }
 
 
-def insert_user_cluster_record(user_id, cluster_id, file_id, coords, matched_score, cluster_name=None, is_identity=False):
+def get_file_cluster_info(user_id, file_id):
     try:
         # initialize cursor
         db = get_db()
         cursor = db.connection.cursor()
 
-        # query to insert the record in MySQL database
-        insert_query = f"""
-            INSERT INTO user_cluster_{user_id} (cluster_id, file_id, x1, y1, x2, y2, matched_score, cluster_name, is_identity)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        # SQL query to get the records
+        select_query = f"""
+            SELECT * FROM user_cluster_{user_id}
+            WHERE file_id=%s;
         """
 
-        x1, y1, x2, y2 = coords
-        # Execute the insert table query
-        cursor.execute(insert_query, (cluster_id, file_id, x1, y1, x2, y2, matched_score, cluster_name, is_identity))
+        # Execute the get records query
+        cursor.execute(select_query, (file_id,))
 
-        # save the changes
-        db.connection.commit()
+        # get the data
+        data = cursor.fetchall()
 
         # return the response
-        return {"success": True}
+        return {
+            "success": True,
+            "data": data
+        }
 
     except Exception as error:
         # return the response
@@ -252,33 +284,6 @@ def update_file_cluster(user_id, cluster_id, file_id, target_cluster_id):
         }
 
 
-def delete_file_from_cluster(user_id, file_id):
-    try:
-        # initialize cursor
-        db = get_db()
-        cursor = db.connection.cursor()
-
-        # SQL query to delete the records
-        update_query = f"""
-            DELETE FROM user_cluster_{user_id}
-            WHERE file_id = %s;
-        """
-
-        # execute the delete query
-        cursor.execute(update_query, (file_id,))
-
-        # save the changes
-        db.connection.commit()
-
-        # return the response
-        return {"success": True}
-    except Exception as error:
-        # return the response
-        return {
-            "success": False,
-            "error": str(error)
-        }
-
 def update_matched_score(user_id, cluster_id, file_id, matched_score):
     try:
         # initialize cursor
@@ -307,7 +312,8 @@ def update_matched_score(user_id, cluster_id, file_id, matched_score):
             "error": str(error)
         }
 
-def update_identity_to_second_highest_match_score(user_id, cluster_id, file_id):
+
+def update_is_identity_true_in_lowest_match_score(user_id, cluster_id):
     try:
         # initialize cursor
         db = get_db()
@@ -319,15 +325,15 @@ def update_identity_to_second_highest_match_score(user_id, cluster_id, file_id):
             JOIN (
                 SELECT file_id
                 FROM user_cluster_{user_id}
-                WHERE cluster_id = %s AND file_id != %s
-                ORDER BY matched_score DESC
+                WHERE cluster_id = %s
+                ORDER BY matched_score
                 LIMIT 1
             ) AS sub ON u.file_id = sub.file_id
             SET u.is_identity = TRUE;
         """
 
         # execute the update query
-        cursor.execute(update_query, (cluster_id, file_id))
+        cursor.execute(update_query, (cluster_id,))
 
         # save the changes
         db.connection.commit()
@@ -341,7 +347,8 @@ def update_identity_to_second_highest_match_score(user_id, cluster_id, file_id):
             "error": str(error)
         }
 
-def update_identity_to_false(user_id, cluster_id, file_id):
+
+def update_cluster_identity(user_id, cluster_id, file_id, identity):
     try:
         # initialize cursor
         db = get_db()
@@ -350,12 +357,40 @@ def update_identity_to_false(user_id, cluster_id, file_id):
         # SQL query to update the records
         update_query = f"""
             UPDATE user_cluster_{user_id}
-            SET is_identity = FALSE
+            SET is_identity = %s
             WHERE cluster_id = %s AND file_id = %s;
         """
 
         # execute the update query
-        cursor.execute(update_query, (cluster_id, file_id))
+        cursor.execute(update_query, (identity, cluster_id, file_id))
+
+        # save the changes
+        db.connection.commit()
+
+        # return the response
+        return {"success": True}
+    except Exception as error:
+        # return the response
+        return {
+            "success": False,
+            "error": str(error)
+        }
+
+
+def delete_file_from_cluster(user_id, file_id):
+    try:
+        # initialize cursor
+        db = get_db()
+        cursor = db.connection.cursor()
+
+        # SQL query to delete the records
+        update_query = f"""
+            DELETE FROM user_cluster_{user_id}
+            WHERE file_id = %s;
+        """
+
+        # execute the delete query
+        cursor.execute(update_query, (file_id,))
 
         # save the changes
         db.connection.commit()

@@ -75,17 +75,6 @@ class DaemonSocketManager:
         # also remove the data from mysql cluster_queue table
         cluster_queue.delete_record(file_id=file_id)
 
-        # remove the file from user's cluster (MySQL table) if already clustered
-        db_response = cluster.delete_file_from_cluster(
-            user_id=user_id,
-            file_id=file_id
-        )
-
-        if db_response["success"]:
-            # emit the changes to all sockets of the current user
-            data_socket_manager.emit_cluster_refreshed_event(user_id=user_id)
-            data_socket_manager.emit_cluster_id_refreshed_event(user_id=user_id)
-
     # method to check if a socket id is an authorized clustering client or not
     def is_socket_authorized(self, socket_id):
         if socket_id in self.daemon_client_socket_information:
