@@ -172,6 +172,12 @@ def handle_delete_file(request, user_id):
                     cluster_id=cluster_id
                 )
 
+        # delete the file existence from the cluster table
+        cluster.delete_file_existence_from_cluster(
+            user_id=user_id,
+            file_id=file_id
+        )
+
         # emit the changes to all current user socket connections as well
         socket_manager.emit_data_refreshed_event(user_id=user_id)
         socket_manager.emit_cluster_refreshed_event(user_id=user_id)
