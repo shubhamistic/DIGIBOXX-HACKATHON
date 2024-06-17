@@ -32,3 +32,12 @@ def getCroppedImage():
         request,
         user_id=get_jwt_identity()
     )
+
+
+@cluster_routes.route('/delete', methods=['POST'])
+@jwt_required()
+def deleteFileFromCluster():
+    return cluster_controller.handle_delete_file(
+        request,
+        user_id=get_jwt_identity()
+    )
