@@ -56,6 +56,12 @@ sudo apt update
     }
   }
   ```
+  
+- Make sure nginx is listening to port 80 and 443:
+  ```bash
+  sudo iptables -I INPUT -p TCP --dport 80 -j ACCEPT
+  sudo iptables -I INPUT -p TCP --dport 443 -j ACCEPT
+  ```
 
 - Open bash profile:
   ```bash

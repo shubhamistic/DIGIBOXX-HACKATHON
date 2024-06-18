@@ -9,7 +9,6 @@ from routes.auth import auth_routes
 from routes.data import data_routes
 from routes.cluster import cluster_routes
 from routes.daemon import daemon_routes
-from routes.null import null_routes
 # sockets
 from sockets import socketio
 import sockets.data
@@ -40,7 +39,6 @@ app.register_blueprint(auth_routes, url_prefix='/auth')
 app.register_blueprint(data_routes, url_prefix='/data')
 app.register_blueprint(cluster_routes, url_prefix='/cluster')
 app.register_blueprint(daemon_routes, url_prefix='/daemon')
-app.register_blueprint(null_routes, url_prefix='/null')
 
 
 if __name__ == '__main__':
