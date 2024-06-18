@@ -153,12 +153,20 @@ def handle_user_feedback(request, user_id):
                         }), 500
 
                 # update th cluster_id
-                cluster.update_file_cluster(
+                db_response = cluster.update_file_cluster(
                     user_id=user_id,
                     cluster_id=cluster_id,
                     file_id=file_id,
                     target_cluster_id=target_cluster_id
                 )
+
+                if not db_response["success"]:
+                    # if the image already exists in that cluster, then delete the file record
+                    cluster.delete_file_from_cluster(
+                        user_id=user_id,
+                        cluster_id=cluster_id,
+                        file_id=file_id
+                    )
 
                 # make another image in the cluster as identity
                 cluster.update_is_identity_true_in_lowest_match_score(
