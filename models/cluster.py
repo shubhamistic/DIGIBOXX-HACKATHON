@@ -17,7 +17,7 @@ def create_user_cluster_table(user_id):
                 matched_score INT,
                 cluster_name VARCHAR(30),
                 is_identity BOOLEAN,
-                PRIMARY KEY (cluster_id, file_id)
+                UNIQUE (cluster_id, file_id)
             );
         """
 
