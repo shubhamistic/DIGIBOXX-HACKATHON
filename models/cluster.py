@@ -16,7 +16,8 @@ def create_user_cluster_table(user_id):
                 x1 INT, y1 INT, x2 INT,  y2 INT,
                 matched_score INT,
                 cluster_name VARCHAR(30),
-                is_identity BOOLEAN
+                is_identity BOOLEAN,
+                PRIMARY KEY (cluster_id, file_id)
             );
         """
 
