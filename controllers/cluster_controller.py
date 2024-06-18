@@ -126,19 +126,12 @@ def handle_user_feedback(request, user_id):
                         }), 500
 
                 # update th cluster_id
-                db_response = cluster.update_file_cluster(
+                cluster.update_file_cluster(
                     user_id=user_id,
                     cluster_id=cluster_id,
                     file_id=file_id,
                     target_cluster_id=target_cluster_id
                 )
-
-                if not db_response["success"]:
-                    # abort the request
-                    return jsonify({
-                        "message": "Error: Database operation failed!",
-                        "error": db_response["error"]
-                    }), 500
 
             # case 3: existing target_cluster_id provided
             # (i.e.) image is wrongly clustered (user wants to change the cluster of that image)
@@ -160,19 +153,12 @@ def handle_user_feedback(request, user_id):
                         }), 500
 
                 # update th cluster_id
-                db_response = cluster.update_file_cluster(
+                cluster.update_file_cluster(
                     user_id=user_id,
                     cluster_id=cluster_id,
                     file_id=file_id,
                     target_cluster_id=target_cluster_id
                 )
-
-                if not db_response["success"]:
-                    # abort the request
-                    return jsonify({
-                        "message": "Error: Database operation failed!",
-                        "error": db_response["error"]
-                    }), 500
 
                 # make another image in the cluster as identity
                 cluster.update_is_identity_true_in_lowest_match_score(
