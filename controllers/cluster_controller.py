@@ -168,11 +168,11 @@ def handle_user_feedback(request, user_id):
                         file_id=file_id
                     )
 
-                # make another image in the cluster as identity
-                cluster.update_is_identity_true_in_lowest_match_score(
-                    user_id=user_id,
-                    cluster_id=cluster_id
-                )
+            # make another image in the cluster as identity
+            cluster.update_is_identity_true_in_lowest_match_score(
+                user_id=user_id,
+                cluster_id=cluster_id
+            )
 
         # emit the changes to all current user socket connections as well
         socket_manager.emit_cluster_refreshed_event(user_id=user_id)
