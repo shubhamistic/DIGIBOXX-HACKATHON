@@ -131,20 +131,18 @@ def handle_delete_file(request, user_id):
         )
 
         # handle deletion from cluster records as well
+        file_cluster_info = []
         db_response = cluster.get_file_cluster_info(
             user_id=user_id,
             file_id=file_id
         )
 
-        if not db_response["success"]:
-            # abort the request
-            return jsonify({
-                "message": "Error: Database operation failed!"
-            }), 500
+        if db_response["success"]:
+            file_cluster_info = db_response["data"]
 
         # iterate over each row and delete the record
         # if image is identity image then make another image as identity image
-        for cluster_row in db_response["data"]:
+        for cluster_row in file_cluster_info:
             cluster_id = cluster_row[1]  # cluster_id
 
             # check if the file id is identity image in the cluster or not
